@@ -22,6 +22,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  
   final AuthProvider authProvider;
 
   const MyApp({super.key, required this.authProvider});
