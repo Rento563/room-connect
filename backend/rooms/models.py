@@ -25,7 +25,7 @@ class Room(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        db_table = 'rooms'
+        db_table = 'app_rooms'
         verbose_name = 'Room'
         verbose_name_plural = 'Rooms'
     

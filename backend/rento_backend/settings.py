@@ -102,13 +102,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'rento_backend.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+# Database - Using Supabase as the database
+# https://www.djangoproject.com/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('SUPABASE_DB_NAME', 'postgres'),
+        'USER': os.getenv('SUPABASE_DB_USER', 'postgres'),
+        'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD', ''),
+        'HOST': os.getenv('SUPABASE_DB_HOST', 'db.pbsxktrhbesjytmomlgm.supabase.co'),
+        'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
     }
 }
 
