@@ -9,7 +9,7 @@ Django REST API server for the Rento Flutter mobile application.
 
 ```bash
 cd backend
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
@@ -19,6 +19,7 @@ pip install -r requirements.txt
 ```bash
 cd backend
 source venv/bin/activate
+# Once the virtualenv is activated, `python` points to the venv's Python.
 python manage.py migrate
 python manage.py runserver
 ```
@@ -33,6 +34,11 @@ Create a `.env` file in `backend/` if needed:
 SECRET_KEY=your_secret_key
 SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_DB_NAME=postgres
+SUPABASE_DB_USER=postgres
+SUPABASE_DB_PASSWORD=your_db_password
+SUPABASE_DB_HOST=your_db_host
+SUPABASE_DB_PORT=5432
 PORT=8000
 ```
 
@@ -46,4 +52,4 @@ PORT=8000
 ## Notes
 
 - CORS is open in development (`CORS_ALLOW_ALL_ORIGINS=True`).
-- Database uses local SQLite (`backend/db.sqlite3`).
+- Database is PostgreSQL by default (configured via `SUPABASE_DB_*` in `backend/.env`).

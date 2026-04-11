@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/user.dart' as user_model;
+import '../utils/supabase_queries.dart';
 
 class AuthProvider with ChangeNotifier {
   user_model.User? _currentUser;
@@ -19,18 +20,15 @@ class AuthProvider with ChangeNotifier {
         password: password,
       );
       if (response.user != null) {
-        // Fetch user profile from database
-        final userData = await _supabase
-            .from('users')
-            .select()
-            .eq('id', response.user!.id)
-            .single();
-        _currentUser = user_model.User.fromJson(userData);
-        await _saveUserLocally();
-        notifyListeners();
+        // Fetch user profile from database using clean query
+        final userData = await SupabaseQueries.getUserById(response.user!.id);
+        if (userData != null) {
+          _currentUser = user_model.User.fromJson(userData);
+          await _saveUserLocally();
+          notifyListeners();
+        }
       }
     } catch (e) {
-      // Handle error
       print('Login error: $e');
     }
   }
@@ -89,14 +87,12 @@ class AuthProvider with ChangeNotifier {
       // Check if user is logged in with Supabase
       final session = _supabase.auth.currentSession;
       if (session != null) {
-        final userData = await _supabase
-            .from('users')
-            .select()
-            .eq('id', session.user.id)
-            .single();
-        _currentUser = user_model.User.fromJson(userData);
-        await _saveUserLocally();
-        notifyListeners();
+        final userData = await SupabaseQueries.getUserById(session.user.id);
+        if (userData != null) {
+          _currentUser = user_model.User.fromJson(userData);
+          await _saveUserLocally();
+          notifyListeners();
+        }
       }
     }
   }
