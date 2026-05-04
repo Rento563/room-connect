@@ -7,13 +7,31 @@ class RoomProvider with ChangeNotifier {
 
   List<Room> get rooms => _rooms;
 
-  Future<void> loadRooms() async {
+  Future<void> loadRooms({
+    String? query,
+    String? city,
+    String? roomType,
+    String? furnishing,
+    String? preferredTenant,
+    double? minPrice,
+    double? maxPrice,
+    String? amenity,
+  }) async {
     try {
-      final response = await DjangoApi.getAllRooms();
+      final response = await DjangoApi.getAllRooms(
+        query: query,
+        city: city,
+        roomType: roomType,
+        furnishing: furnishing,
+        preferredTenant: preferredTenant,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        amenity: amenity,
+      );
       _rooms = response.map((json) => Room.fromJson(json)).toList();
       notifyListeners();
     } catch (e) {
-      print('Load rooms error: $e');
+      debugPrint('Load rooms error: $e');
     }
   }
 
@@ -23,7 +41,8 @@ class RoomProvider with ChangeNotifier {
       _rooms.add(room);
       notifyListeners();
     } catch (e) {
-      print('Add room error: $e');
+      debugPrint('Add room error: $e');
+      rethrow;
     }
   }
 
@@ -36,7 +55,8 @@ class RoomProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print('Update room error: $e');
+      debugPrint('Update room error: $e');
+      rethrow;
     }
   }
 
@@ -46,7 +66,8 @@ class RoomProvider with ChangeNotifier {
       _rooms.removeWhere((r) => r.id == roomId);
       notifyListeners();
     } catch (e) {
-      print('Delete room error: $e');
+      debugPrint('Delete room error: $e');
+      rethrow;
     }
   }
 
