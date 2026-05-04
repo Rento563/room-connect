@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
-import '../utils/constants.dart';
+import 'package:provider/provider.dart';
+import '../models/user.dart';
+import '../providers/auth_provider.dart';
+import '../widgets/app_logo.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,8 +18,22 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) context.go('/login');
+      Future.delayed(const Duration(seconds: 2), () {
+        if (!mounted) return;
+
+        final authProvider = context.read<AuthProvider>();
+        final user = authProvider.currentUser;
+
+        if (user == null || !authProvider.hasSupabaseSession) {
+          context.go('/login');
+          return;
+        }
+
+        if (user.role == UserRole.tenant) {
+          context.go('/tenant_home');
+        } else {
+          context.go('/landowner_dashboard');
+        }
       });
     });
   }
@@ -30,19 +47,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             FadeIn(
               duration: const Duration(seconds: 1),
-              child: const Icon(Icons.home, size: 100, color: Colors.blue),
-            ),
-            const SizedBox(height: 20),
-            FadeIn(
-              delay: const Duration(milliseconds: 500),
-              duration: const Duration(seconds: 1),
-              child: Text(
-                'Rento',
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              child: const AppLogo(height: 240),
             ),
           ],
         ),

@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'rento_backend.middleware.ApiRequestLogMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -77,6 +78,9 @@ REST_FRAMEWORK = {
 # Supabase settings
 SUPABASE_URL = os.getenv('SUPABASE_URL', 'https://pbsxktrhbesjytmomlgm.supabase.co')
 SUPABASE_ANON_KEY = os.getenv('SUPABASE_ANON_KEY', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBic3hrdHJoYmVzanl0bW9tbGdtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ4NjcwMzQsImV4cCI6MjA5MDQ0MzAzNH0.pIxwA0xe7LoCJMiuClj2lPupxaDurzAPdOA24B5BHnc')
+SUPABASE_SERVICE_KEY = os.getenv('SUPABASE_SERVICE_KEY', '')
+SUPABASE_STORAGE_BUCKET = os.getenv('SUPABASE_STORAGE_BUCKET', 'room-images')
+SUPABASE_PROFILE_BUCKET = os.getenv('SUPABASE_PROFILE_BUCKET', 'profile-photos')
 
 # Port setting
 PORT = int(os.getenv('PORT', 8000))
@@ -105,16 +109,35 @@ WSGI_APPLICATION = 'rento_backend.wsgi.application'
 # Database - Using Supabase as the database
 # https://www.djangoproject.com/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('SUPABASE_DB_NAME', 'postgres'),
-        'USER': os.getenv('SUPABASE_DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD', ''),
-        'HOST': os.getenv('SUPABASE_DB_HOST', 'db.pbsxktrhbesjytmomlgm.supabase.co'),
-        'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
+DB_ENGINE = os.getenv('DB_ENGINE', 'postgres').strip().lower()
+
+if DB_ENGINE in {'sqlite', 'sqlite3'}:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Supabase Postgres requires SSL.
+    db_options = {
+        'sslmode': os.getenv('SUPABASE_DB_SSLMODE', 'require'),
+    }
+    db_hostaddr = os.getenv('SUPABASE_DB_HOSTADDR', '').strip()
+    if db_hostaddr:
+        db_options['hostaddr'] = db_hostaddr
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('SUPABASE_DB_NAME', 'postgres'),
+            'USER': os.getenv('SUPABASE_DB_USER', 'postgres'),
+            'PASSWORD': os.getenv('SUPABASE_DB_PASSWORD', ''),
+            'HOST': os.getenv('SUPABASE_DB_HOST', 'db.pbsxktrhbesjytmomlgm.supabase.co'),
+            'PORT': os.getenv('SUPABASE_DB_PORT', '5432'),
+            'OPTIONS': db_options,
+        }
+    }
 
 
 # Password validation
@@ -157,3 +180,26 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'api': {
+            'format': '[API] %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'api',
+        },
+    },
+    'loggers': {
+        'api': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}

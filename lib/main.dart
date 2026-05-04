@@ -10,6 +10,7 @@ import 'screens/login_screen.dart';
 import 'screens/signup_screen.dart';
 import 'screens/tenant_home.dart';
 import 'screens/landowner_dashboard.dart';
+import 'utils/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,8 +23,6 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  
-  
   final AuthProvider authProvider;
 
   const MyApp({super.key, required this.authProvider});
@@ -38,7 +37,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Rento',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: buildAppTheme(),
         routerConfig: _router,
       ),
     );
